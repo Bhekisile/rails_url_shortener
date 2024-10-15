@@ -4,9 +4,7 @@ class ShortenedUrl < ApplicationRecord
   
   # Validation for URL format
   validates_format_of :original_url,
-                      # with: URI::DEFAULT_PARSER.make_regexp(%w[http https])
   # Alternatively, you can use the following custom regex for more control:
-                      # with: /\A(?:(?:http|https):\/\/)?([-a-zA-Z0-9.]{2,256}\.[a-z]{2,4})\b(?:\/[-a-zA-Z0-9@,!:%_\+.-#?&\/\/=]*)?\Z/
                     with:  /\A(?:(?:http|https):\/\/)?([a-zA-Z0-9.-]{2,256}\.[a-z]{2,4})\b(?:\/[a-zA-Z0-9@,!:%_\+.\-#?&\/\/=]*)?\Z/
 
   
@@ -34,8 +32,12 @@ class ShortenedUrl < ApplicationRecord
   end
 
   def sanitize
-    self.original_url.strip!
-    self.sanitize_url = self.original_url.downcase.gsub(/(https?:\/\/)|(www\.)/, "")
-    self.sanitize_url = "http://#{self.sanitize_url}"
+    if self.original_url.present?
+      sanitized_url = self.original_url.strip.downcase.gsub(/(https?:\/\/)|(www\.)/, "")
+      self.sanitize_url = "http://#{sanitized_url}"
+    else
+      # Handle the case where original_url is nil
+      self.sanitize_url = nil
+    end
   end
 end

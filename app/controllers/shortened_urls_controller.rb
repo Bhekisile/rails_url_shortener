@@ -7,14 +7,16 @@ class ShortenedUrlsController < ApplicationController
   end
   
   def show
-    redirect_to @url.sanitize_url
+    if @url.present?
+      redirect_to @url.sanitize_url
+    end
   end
 
   def create
     @url = ShortenedUrl.new
     @url.original_url = params[:original_url]
     @url.sanitize
-    if @url.new_url?
+    if @url.new_url
       if @url.save
         redirect_to shortened_path(@url.short_url)
       else
